@@ -6,7 +6,7 @@ alwaysApply: true
 
 ## Project Overview
 
-- **本仓库**既可作为 **AI 小说写作** 方向的实现起点，也可作为 **Next.js + Prisma + SQLite** 的 **通用项目模板** 使用。
+- **本仓库**既可作为 **AI 小说生成** 方向的实现起点，也可作为 **Next.js + Prisma + SQLite** 的 **通用项目模板** 使用。
 - 以业务代码与 `package.json` 为准；从模板开新项目时，请替换产品名、环境变量与 `schema` 中领域模型。
 
 ## Tech Stack

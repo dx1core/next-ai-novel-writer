@@ -1,21 +1,24 @@
-# Next.js template
+# AI 小说生成（next-ai-novel-writer）
 
-This is a Next.js template with shadcn/ui.
+基于 **Next.js 16**、**Prisma 7** 与 **SQLite** 的 AI 小说生成应用模板，集成 shadcn/ui 与 Biome。
 
-## Adding components
-
-To add components to your app, run the following command:
+## 开发
 
 ```bash
-npx shadcn@latest add button
+pnpm install
+pnpm dev
 ```
 
-This will place the ui components in the `components` directory.
+更多约定与目录说明见 [AGENTS.md](./AGENTS.md)。
 
-## Using components
+## 添加 shadcn 组件
 
-To use the components in your app, import them as follows:
+```bash
+pnpm dlx shadcn@latest add button
+```
+
+组件将出现在 `components/ui/` 中，使用方式：
 
 ```tsx
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 ```

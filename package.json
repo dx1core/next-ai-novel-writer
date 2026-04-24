@@ -1,5 +1,6 @@
 {
   "name": "next-ai-novel-writer",
+  "description": "基于 Next.js 的 AI 小说生成应用（含 Prisma + SQLite 模板能力）",
   "version": "0.0.1",
   "type": "module",
   "private": true,

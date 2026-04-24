@@ -4,7 +4,7 @@
 
 ## 仓库定位
 
-- **本仓库是通用项目模板**（可 fork / 复制后作为新应用起点），默认场景为 **AI 小说写作**（`next-ai-novel-writer`）。落地新项目时请：
+- **本仓库是通用项目模板**（可 fork / 复制后作为新应用起点），默认场景为 **AI 小说生成**（`next-ai-novel-writer`）。落地新项目时请：
   - 重命名包名、应用标题与品牌相关文案
   - 视需求调整 `prisma/schema.prisma` 与 `lib/db` 下的按领域拆分的查询
   - 保留 **SQLite + Prisma 7** 时维持 `DATABASE_URL`、adapter 与 `postinstall` 中的 `prisma generate` 约定

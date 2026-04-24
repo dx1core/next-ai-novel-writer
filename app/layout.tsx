@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
@@ -10,6 +11,14 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const metadata: Metadata = {
+  title: {
+    default: "AI 小说生成",
+    template: "%s · AI 小说生成",
+  },
+  description: "基于 Next.js 的 AI 小说生成与创作应用。",
+}
 
 export default function RootLayout({
   children,
