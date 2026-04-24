@@ -1,0 +1,108 @@
+---
+description: Code structure, function decomposition, and readability rules
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: true
+---
+
+## Code Structure & Decomposition
+
+### Hard Limits
+- Single function: max **40 lines** (excluding comments)
+- Single file: max **200 lines**
+- Single component: max **100 lines** (JSX included)
+- Nesting depth: max **3 levels**; extract early returns or subcomponents beyond that
+
+### When to Extract a Function
+Whenever a block of code meets any of these:
+- Has a comment above it explaining what it does → it should be its own named function
+- Used more than once → extract and reuse
+- Can be described in one sentence → name it that way
+
+### When to Split a File
+- File exceeds 200 lines → split by responsibility
+- Component has both data-fetching logic and rendering → split into container + presentational
+- Multiple unrelated helpers in one file → separate into focused util files
+
+### Naming Must Reflect Intent
+\`\`\`ts
+// ❌ Vague
+const handle = async (data: any) => { ... }
+const process = (input) => { ... }
+
+// ✅ Descriptive
+const handleReviewSubmit = async (rating: Rating) => { ... }
+const calculateNextDueDate = (card: Card, rating: Rating) => { ... }
+\`\`\`
+
+### No Mega-Functions
+\`\`\`ts
+// ❌ Don't do this — one function doing everything
+async function handleCardReview(cardId: string, rating: Rating) {
+  const card = await prisma.card.findUnique(...)
+  const f = fsrs()
+  const result = f.next(card, new Date(), rating)
+  await prisma.card.update(...)
+  await prisma.reviewLog.create(...)
+  revalidateTag("cards")
+  // ... 60 more lines
+}
+
+// ✅ Decomposed
+async function handleCardReview(cardId: string, rating: Rating) {
+  const card = await getCardById(cardId)
+  const scheduled = scheduleCard(card, rating)
+  await saveReviewResult(cardId, scheduled)
+  revalidateTag("cards")
+}
+
+async function getCardById(cardId: string) { ... }
+function scheduleCard(card: Card, rating: Rating) { ... }
+async function saveReviewResult(cardId: string, result: SchedulingInfo) { ... }
+\`\`\`
+
+### React Components
+\`\`\`tsx
+// ❌ One component with everything inside
+export function ReviewPage() {
+  // 200 lines of hooks, handlers, and JSX mixed together
+}
+
+// ✅ Split by concern
+export function ReviewPage() {
+  const { card, isLoading } = useCurrentCard()
+  if (isLoading) return <ReviewSkeleton />
+  return <ReviewLayout card={card} />
+}
+
+function ReviewLayout({ card }: { card: Card }) { ... }
+function ReviewSkeleton() { ... }
+\`\`\`
+
+### Early Return over Deep Nesting
+\`\`\`ts
+// ❌ Arrow-shaped code
+function processCard(card: Card | null) {
+  if (card) {
+    if (card.state === State.New) {
+      if (card.reps === 0) {
+        // actual logic buried here
+      }
+    }
+  }
+}
+
+// ✅ Guard clauses
+function processCard(card: Card | null) {
+  if (!card) return null
+  if (card.state !== State.New) return null
+  if (card.reps !== 0) return null
+  // actual logic at top level
+}
+\`\`\`
+
+### Reminder for AI
+When generating code:
+1. Write the high-level function first (max 15 lines)
+2. Extract each sub-step into a named helper
+3. If you find yourself writing a comment to explain a block → extract it as a function instead
+4. Prefer many small focused functions over one complete solution

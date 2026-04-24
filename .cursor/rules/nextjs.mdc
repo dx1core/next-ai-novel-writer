@@ -1,0 +1,34 @@
+---
+description: Next.js and React conventions
+globs: ["**/*.tsx", "**/*.ts", "app/**/*"]
+alwaysApply: false
+---
+
+## React & Next.js
+
+### Server vs Client Components
+- Default to React Server Components (RSC)
+- Add `"use client"` only when needed: event handlers, hooks, browser APIs
+- Never expose sensitive data from Server Components to Client Components
+
+### App Router Conventions
+- Use `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx` per segment
+- Use `not-found.tsx` for 404 handling
+- Use `next/navigation` (never `next/router`)
+
+### Data Fetching
+- Fetch data directly in Server Components
+- Avoid unnecessary API Route Handlers; prefer Server Actions
+- Server Actions go in `app/actions/[feature].ts` with `"use server"` directive
+- Use `use cache` + `revalidateTag` for caching in Next.js 16
+
+### TypeScript
+- Strict mode always on, never use `any`
+- Prefer `type` over `interface` unless merging is needed
+- Use `satisfies` operator where appropriate
+- Shared types exported from `lib/types.ts` (or `lib/types/`)
+
+### Error Handling
+- Always handle loading and error states in UI
+- Async functions must have try/catch or use Result pattern
+- Use `error.tsx` boundaries for route-level errors

@@ -1,0 +1,26 @@
+---
+description: Prisma and database conventions
+globs: ["lib/db/**/*", "lib/db.ts", "prisma/**/*", "app/actions/**/*"]
+alwaysApply: false
+---
+
+## Database & Prisma
+
+- All DB access must go through Prisma Client; no raw SQL unless unavoidable
+- Use Prisma transactions for multi-step operations
+- All models defined in `schema.prisma`; keep migrations versioned
+- Always use `select` to avoid over-fetching fields
+- DB query functions live in `lib/db/[feature].ts`
+- Never call Prisma directly from components or Server Actions — go through `lib/db/`
+
+## Patterns
+\`\`\`ts
+// ✅ Good
+const user = await prisma.user.findUnique({
+  where: { id },
+  select: { id: true, name: true, email: true },
+})
+
+// ❌ Bad - over-fetching
+const user = await prisma.user.findUnique({ where: { id } })
+\`\`\`

@@ -1,0 +1,34 @@
+---
+description: UI, styling, and component conventions
+globs: ["components/**/*", "app/**/*.tsx"]
+alwaysApply: false
+---
+
+## UI & Styling
+
+### Tailwind CSS 4
+- Use utility classes only; no inline styles
+- Mobile-first responsive design
+- Dark mode via `dark:` variant — must be supported everywhere
+
+### Component Library Priority
+1. **shadcn/ui** — forms, dialogs, dropdowns, tables
+2. **Base UI** — headless primitives when shadcn doesn't cover the case
+3. Custom — only when neither library fits
+
+### Icons
+- Use Lucide Icons exclusively
+- Always import individually:
+\`\`\`ts
+// ✅ Good
+import { BookOpen, Star } from "lucide-react"
+
+// ❌ Bad
+import * as Icons from "lucide-react"
+\`\`\`
+
+### Component Rules
+- One component per file
+- Max ~50 lines per component; extract subcomponents if longer
+- Always handle loading, empty, and error states
+- Use `cn()` from `lib/utils` for conditional class merging

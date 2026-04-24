@@ -1,0 +1,44 @@
+---
+description: Code quality, Biome, and formatting rules
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: false
+---
+
+## Code Quality
+
+### Biome
+- All code must pass `biome check` before committing
+- No unused imports or variables
+- No `console.log` in production code; use proper logging
+
+### Functions
+- Max 50 lines per function; extract if longer
+- Prefer pure functions where possible
+- Async functions must handle errors explicitly
+
+### Imports
+- No default exports except Next.js `page.tsx` / `layout.tsx`
+- Group imports: external libs → internal modules → types
+- Use path aliases (`@/`) consistently
+
+### Forbidden Patterns
+\`\`\`ts
+// ❌ Never use `any`
+const data: any = ...
+
+// ❌ No implicit returns in async without error handling
+async function fetchData() {
+  const res = await fetch(url) // missing try/catch
+  return res.json()
+}
+
+// ✅ Correct
+async function fetchData() {
+  try {
+    const res = await fetch(url)
+    return await res.json()
+  } catch (error) {
+    throw new Error(`Failed to fetch: ${error}`)
+  }
+}
+\`\`\`
