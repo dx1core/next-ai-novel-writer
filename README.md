@@ -1,6 +1,8 @@
 # AI 小说生成（next-ai-novel-writer）
 
-基于 **Next.js 16**、**Prisma 7** 与 **SQLite** 的 AI 小说生成应用模板，集成 shadcn/ui 与 Biome。
+基于 **Next.js 16**、**Prisma 7** 与 **PostgreSQL** 的 AI 小说生成应用模板，集成 shadcn/ui 与 Biome。
+
+本地需可用的 PostgreSQL 实例，并在 `.env` 中配置 `DATABASE_URL`（见 `.env.example`）。首次拉库后执行 `pnpm db:migrate` 应用迁移。
 
 ## 开发
 

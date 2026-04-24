@@ -6,6 +6,11 @@ alwaysApply: false
 
 ## UI & Styling
 
+### Notion 风格设计系统
+- 视觉与色板、排版、圆角与阴影以 **`.cursor/rules/design.mdc`**（Notion marketing 向）为准；全局 token 与基线样式在 **`app/globals.css`**（`--primary` Notion Blue、`--muted` 暖白、whisper `border`、`.notion-*` 工具类）。
+- 页面容器优先用 **`.notion-page`**；区块交替背景用 **`.notion-surface`** / **`bg-muted`**；正文次要用 **`.notion-prose-muted`**；链接用 **`.notion-link`** 或 `text-primary`。
+- 自定义 UI 与 shadcn 变体保持 **4px（`rounded-md`）按钮/输入**、**12px（`rounded-xl`）卡片** 层级，避免过圆「药丸」除非组件库默认。
+
 ### Tailwind CSS 4
 - Use utility classes only; no inline styles
 - Mobile-first responsive design

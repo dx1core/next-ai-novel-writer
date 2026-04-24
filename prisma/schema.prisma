@@ -1,7 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client"
@@ -9,5 +6,135 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  topic     String   @default("")
+  genre     String   @default("")
+  numChapters   Int  @default(10)
+  wordNumber    Int  @default(3000)
+  currentChapter Int @default(1)
+  userGuidance  String @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  settings     ProjectSettings?
+  architecture NovelArchitecture?
+  blueprint    ChapterBlueprint?
+  chapters     Chapter[]
+  globalSummary   GlobalSummary?
+  characterState  CharacterState?
+  plotArcs     PlotArcs?
+}
+
+/// Named LLM configuration (reusable across projects)
+model LlmProfile {
+  id              String  @id @default(cuid())
+  name            String
+  interfaceFormat String
+  apiKey          String
+  baseUrl         String
+  modelName       String
+  temperature     Float   @default(0.7)
+  maxTokens       Int     @default(8192)
+  timeout         Int     @default(600)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model EmbeddingProfile {
+  id              String  @id @default(cuid())
+  name            String
+  interfaceFormat String
+  apiKey          String
+  baseUrl         String
+  modelName       String
+  retrievalK      Int     @default(4)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ProjectSettings {
+  id        String  @id @default(cuid())
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  architectureLlmId   String?
+  blueprintLlmId      String?
+  draftLlmId          String?
+  finalizeLlmId       String?
+  consistencyLlmId    String?
+  embeddingProfileId  String?
+
+  proxyEnabled Boolean @default(false)
+  proxyUrl     String  @default("127.0.0.1")
+  proxyPort    String  @default("")
+  webdavUrl    String  @default("")
+  webdavUser   String  @default("")
+  webdavPassword String @default("")
+
+  updatedAt DateTime @updatedAt
+}
+
+model NovelArchitecture {
+  id          String  @id @default(cuid())
+  projectId   String  @unique
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  content     String  @default("")
+  partialJson String  @default("")
+  updatedAt   DateTime @updatedAt
+}
+
+model ChapterBlueprint {
+  id        String  @id @default(cuid())
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  content   String  @default("")
+  updatedAt DateTime @updatedAt
+}
+
+enum ChapterStatus {
+  DRAFT
+  FINAL
+}
+
+model Chapter {
+  id           String        @id @default(cuid())
+  projectId    String
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  number       Int
+  draftContent String        @default("")
+  finalContent String        @default("")
+  status       ChapterStatus @default(DRAFT)
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([projectId, number])
+  @@index([projectId])
+}
+
+model GlobalSummary {
+  id        String  @id @default(cuid())
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  content   String  @default("")
+  updatedAt DateTime @updatedAt
+}
+
+model CharacterState {
+  id        String  @id @default(cuid())
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  content   String  @default("")
+  updatedAt DateTime @updatedAt
+}
+
+model PlotArcs {
+  id        String  @id @default(cuid())
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  content   String  @default("")
+  updatedAt DateTime @updatedAt
 }

@@ -27,16 +27,11 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      className={cn("font-sans", inter.variable, fontMono.variable)}
+      lang="zh-CN"
       suppressHydrationWarning
-      className={cn(
-        "antialiased",
-        fontMono.variable,
-        "font-sans",
-        inter.variable
-      )}
     >
-      <body>
+      <body className="min-h-svh bg-background text-foreground antialiased">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

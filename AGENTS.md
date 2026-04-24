@@ -7,7 +7,7 @@
 - **本仓库是通用项目模板**（可 fork / 复制后作为新应用起点），默认场景为 **AI 小说生成**（`next-ai-novel-writer`）。落地新项目时请：
   - 重命名包名、应用标题与品牌相关文案
   - 视需求调整 `prisma/schema.prisma` 与 `lib/db` 下的按领域拆分的查询
-  - 保留 **SQLite + Prisma 7** 时维持 `DATABASE_URL`、adapter 与 `postinstall` 中的 `prisma generate` 约定
+  - 保留 **PostgreSQL + Prisma 7** 时配置有效的 **`DATABASE_URL`**、**`@prisma/adapter-pg`** 与 `postinstall` 中的 `prisma generate` 约定
 - 若将数据库换成其他引擎，需同步改 **Prisma schema、连接串、驱动适配器** 与 `lib/db.ts`，并更新本仓库文档。
 
 ## 技术栈
@@ -17,7 +17,7 @@
 | 框架   | Next.js 16（App Router）、React 19 |
 | 语言   | TypeScript 5（`strict`） |
 | 样式   | Tailwind CSS 4；组件上优先 **shadcn/ui**，其次 **Base UI**；图标用 **Lucide**（具名 import） |
-| 数据库 | **SQLite** + **Prisma 7**；运行时通过 `@prisma/adapter-better-sqlite3` 与 `lib/db.ts` 单例 |
+| 数据库 | **PostgreSQL** + **Prisma 7**；运行时通过 `@prisma/adapter-pg`、`pg` 与 `lib/db.ts` 单例 |
 | 包管理 | **pnpm** |
 
 以本仓库的 `package.json` 和 `prisma/schema.prisma` 为权威；代码风格与静态检查统一由 **Biome**（`biome.json`）负责。
@@ -62,7 +62,7 @@ pnpm db:push      # prisma db push
 pnpm db:studio    # Prisma Studio
 ```
 
-从模板新建环境：复制 **`.env.example`** 为 **`.env`**，设置 **`DATABASE_URL`**（如 `file:./dev.db`），再 `pnpm install`。
+从模板新建环境：先启动本机或容器中的 **PostgreSQL**，复制 **`.env.example`** 为 **`.env`**，将 **`DATABASE_URL`** 改为你的库连接串，再 `pnpm install` 与 `pnpm db:migrate`（或 `db:push` 于开发环境）。
 
 ## 路径别名
 
@@ -78,5 +78,6 @@ pnpm db:studio    # Prisma Studio
 | 结构拆分与可读性 | `code-structure.mdc` |
 | 质量与 import | `code-quality.mdc` |
 | UI / Tailwind / 组件 | `ui.mdc` |
+| 产品方案与架构 | `design.md` |
 
 在实现功能前，若涉及多方案取舍或新架构，可先在对话中与用户对齐需求与设计。
