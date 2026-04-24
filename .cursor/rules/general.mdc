@@ -5,41 +5,48 @@ alwaysApply: true
 ---
 
 ## Project Overview
-A spaced repetition flashcard app using FSRS algorithm.
+
+- **本仓库**既可作为 **AI 小说写作** 方向的实现起点，也可作为 **Next.js + Prisma + SQLite** 的 **通用项目模板** 使用。
+- 以业务代码与 `package.json` 为准；从模板开新项目时，请替换产品名、环境变量与 `schema` 中领域模型。
 
 ## Tech Stack
-- Next.js 16 (App Router), React 19
-- PostgreSQL + Prisma 7
-- ts-fsrs for scheduling
+
+- Next.js 16（App Router）, React 19
+- **SQLite** + **Prisma 7**（`@prisma/adapter-better-sqlite3` + `better-sqlite3`；见 `lib/db.ts`）
 - Tailwind CSS 4, shadcn/ui, Base UI, Lucide Icons
-- Biome, TypeScript 5
+- Biome（lint + format），TypeScript 5
+- 包管理：**pnpm**（见 `package.json` 的 `onlyBuiltDependencies` 等说明）
 
 ## Naming Conventions
 
 ### Symbols (unchanged)
+
 - React components: `PascalCase`
 - Functions/variables: `camelCase`
 - Constants: `SCREAMING_SNAKE_CASE`
 - Prisma models: `PascalCase` (singular)
 
 ### File names by area
+
 - **`components/ui/**`**: Generated/maintained for shadcn/ui — **do not apply** project file-naming rules here; follow shadcn conventions when adding or syncing components.
 - **App component modules** (`components/**/*.tsx` except under `components/ui/`): match the primary exported component — **`PascalCase.tsx`**. Co-located tests: **`PascalCase.test.tsx`**.
-- **Hooks**: **`hooks/useXxxYyy.ts`** (`use` prefix + camelCase), e.g. `useSession.ts`, `useHintReveal.ts`.
-- **Non-component TS modules** (`lib/**`, `app/actions/**`, etc.): multi-word files prefer **`kebab-case.ts`**; short or conventional names at `lib/` root may stay (e.g. `db.ts`, `types.ts`). Utility modules that export JSX helpers but not a primary component may stay kebab-case (e.g. `lib/utils/fill-in-blank-sentence-block.tsx`).
+- **Hooks**: **`hooks/useXxxYyy.ts`** (`use` prefix + camelCase), e.g. `useSession.ts`, `useChapters.ts`.
+- **Non-component TS modules** (`lib/**`, `app/actions/**`, etc.): multi-word files prefer **`kebab-case.ts`**; short or conventional names at `lib/` root may stay (e.g. `db.ts`, `types.ts`). Utility modules that export JSX helpers but not a primary component may stay kebab-case.
 - **`app/` route files**: Next.js defaults `page.tsx`, `layout.tsx`, `route.ts`; other UI modules in `app/` use **`PascalCase.tsx`** when they export components.
 
 ## Folder Structure
-- Components: `components/[feature]/ComponentName.tsx` (feature folder such as `cards/`; exclude `ui/` from project naming rules)
+
+- Components: `components/[feature]/ComponentName.tsx` (e.g. feature folders like `chapters/`, `editor/`; exclude `ui/` from project naming rules)
 - Server Actions: `app/actions/[feature].ts`
-- DB queries: `lib/db/[feature].ts`
+- DB queries: `lib/db/[feature].ts` (import `prisma` from `lib/db.ts` only)
 - Types: `lib/types.ts` (or `lib/types/[feature].ts`)
 - Hooks: `hooks/useXxxYyy.ts`
 - Utils: `lib/utils/[name].ts` (kebab-case for multi-word)
 
 ## General Rules
+
 - Do not install new dependencies without asking first
-- Do not modify files in `prisma/migrations/`
+- Do not modify files in `prisma/migrations/` by hand
 - Prefer composition over inheritance
 - Keep components small and single-responsibility
 - Use named exports; default exports only for Next.js page/layout files
