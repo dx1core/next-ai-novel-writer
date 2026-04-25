@@ -26,5 +26,9 @@ export function limitChapterBlueprint(
   if (chapters.length <= limitChapters) {
     return blueprintText
   }
-  return chapters.slice(-limitChapters).join("\n\n").trim()
+  return chapters
+    .slice(-limitChapters)
+    .map((chapter) => chapter.trim())
+    .join("\n\n")
+    .trim()
 }

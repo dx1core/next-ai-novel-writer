@@ -13,7 +13,7 @@ export function splitKnowledgeParagraphs(
   }
   return splitSentencesToParagraphs(
     content
-      .split(/(?<=[.!?。！？])\s+|\n+/)
+      .split(/(?<=[.!?。！？])\s*|\n+/)
       .map((s) => s.trim())
       .filter(Boolean),
     maxLength

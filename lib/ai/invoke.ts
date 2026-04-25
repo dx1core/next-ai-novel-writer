@@ -1,6 +1,6 @@
 import type { LlmAdapter } from "./llm"
 
-const THINK_RE = /<think>[\s\S]*?<\/redacted_thinking>/gi
+const THINK_RE = /<think>[\s\S]*?<\/think>/gi
 
 function removeRedactedThinkTags(text: string): string {
   return text.replace(THINK_RE, "")
@@ -55,5 +55,5 @@ export async function invokeWithCleaning(
       }
     }
   }
-  return result
+  throw new Error("LLM invoke failed after retries")
 }

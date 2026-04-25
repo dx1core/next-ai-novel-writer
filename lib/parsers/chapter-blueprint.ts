@@ -1,12 +1,12 @@
 import type { ChapterBlueprintInfo } from "@/lib/types"
 
 const headerRe = /^第\s*(\d+)\s*章\s*-\s*\[?(.*?)\]?$/
-const roleRe = /^本章定位：\s*\[?(.*)\]?$/
-const purposeRe = /^核心作用：\s*\[?(.*)\]?$/
-const suspenseRe = /^悬念密度：\s*\[?(.*)\]?$/
-const foreRe = /^伏笔操作：\s*\[?(.*)\]?$/
-const twistRe = /^认知颠覆：\s*\[?(.*)\]?$/
-const summaryRe = /^本章简述：\s*\[?(.*)\]?$/
+const roleRe = /^本章定位：\s*\[?(.*?)\]?$/
+const purposeRe = /^核心作用：\s*\[?(.*?)\]?$/
+const suspenseRe = /^悬念密度：\s*\[?(.*?)\]?$/
+const foreRe = /^伏笔操作：\s*\[?(.*?)\]?$/
+const twistRe = /^认知颠覆：\s*\[?(.*?)\]?$/
+const summaryRe = /^本章简述：\s*\[?(.*?)\]?$/
 
 /**
  * Parse full `Novel_directory` style text into per-chapter records.

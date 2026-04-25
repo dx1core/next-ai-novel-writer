@@ -19,7 +19,7 @@ export function splitTextForVectorStore(
     return []
   }
   const raw = chapterText
-    .split(/(?<=[.!?。！？])\s+|\n+/)
+    .split(/(?<=[.!?。！？])\s*|\n+/)
     .map((s) => s.trim())
     .filter(Boolean)
   const sentences = raw.length > 0 ? raw : [chapterText]
