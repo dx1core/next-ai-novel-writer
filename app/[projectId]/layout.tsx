@@ -49,7 +49,7 @@ export default async function ProjectLayout({ children, params }: Props) {
           </Link>
         </p>
       </aside>
-      <main className="min-w-0 flex-1 overflow-x-auto bg-background px-5 py-8 sm:px-8">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-auto bg-background px-5 py-8 sm:px-8">
         {children}
       </main>
     </div>

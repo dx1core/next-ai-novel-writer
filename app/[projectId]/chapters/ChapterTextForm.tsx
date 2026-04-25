@@ -14,11 +14,12 @@ export function ChapterTextForm({
 }) {
   return (
     <TextEditor
+      className="flex min-h-0 flex-1 flex-col gap-2"
       initialValue={initialValue}
-      label={`第 ${chapterNumber} 章草稿`}
       onSave={async (v) => {
         await updateChapterTextAction(projectId, chapterNumber, v)
       }}
+      textareaClassName="min-h-0 flex-1 resize-y overflow-y-auto"
     />
   )
 }

@@ -11,9 +11,11 @@ export default async function BlueprintPage({ params }: Props) {
     notFound()
   }
   return (
-    <div>
-      <h1 className="font-bold text-2xl tracking-[-0.03em]">章节目录</h1>
-      <div className="mt-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <h1 className="shrink-0 font-bold text-2xl tracking-[-0.03em]">
+        章节目录
+      </h1>
+      <div className="flex min-h-0 flex-1 flex-col">
         <BlueprintForm
           initialValue={p.blueprint?.content ?? ""}
           projectId={projectId}

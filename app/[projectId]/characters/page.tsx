@@ -11,12 +11,13 @@ export default async function CharactersPage({ params }: Props) {
     notFound()
   }
   return (
-    <div>
-      <h1 className="font-bold text-2xl tracking-[-0.03em]">角色状态</h1>
-      <div className="mt-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <h1 className="shrink-0 font-bold text-2xl tracking-[-0.03em]">
+        角色状态
+      </h1>
+      <div className="flex min-h-0 flex-1 flex-col">
         <StateTextForm
           initialValue={p.characterState?.content ?? ""}
-          label="character_state"
           projectId={projectId}
           which="character"
         />

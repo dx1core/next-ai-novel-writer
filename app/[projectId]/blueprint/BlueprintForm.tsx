@@ -12,11 +12,12 @@ export function BlueprintForm({
 }) {
   return (
     <TextEditor
+      className="flex min-h-0 flex-1 flex-col gap-2"
       initialValue={initialValue}
-      label="章节目录 Novel_directory 风格"
       onSave={async (v) => {
         await updateBlueprintTextAction(projectId, v)
       }}
+      textareaClassName="min-h-0 flex-1 resize-y overflow-y-auto"
     />
   )
 }

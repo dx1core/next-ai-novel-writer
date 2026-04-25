@@ -2,6 +2,16 @@ import type { LlmAdapter } from "./llm"
 
 const THINK_RE = /<think>[\s\S]*?<\/think>/gi
 
+function serializeError(err: unknown): string {
+  if (err instanceof Error) {
+    return err.message
+  }
+  if (typeof err === "object" && err !== null && "message" in err) {
+    return String((err as { message: unknown }).message)
+  }
+  return String(err)
+}
+
 function removeRedactedThinkTags(text: string): string {
   return text.replace(THINK_RE, "")
 }
@@ -21,10 +31,16 @@ export async function callWithRetry<T>(
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       return await fn()
-    } catch (_e) {
+    } catch (err) {
+      console.error("[LLM] callWithRetry attempt failed", {
+        attempt,
+        maxRetries,
+        error: serializeError(err),
+      })
       if (attempt < maxRetries) {
         await sleep(sleepTimeMs)
       } else {
+        console.error("[LLM] callWithRetry exhausted retries, using fallback")
         return fallback
       }
     }
@@ -40,8 +56,10 @@ export async function invokeWithCleaning(
   prompt: string,
   maxRetries = 3
 ): Promise<string> {
+  const urlLog = adapter.requestUrl ? { url: adapter.requestUrl } : {}
   let result = ""
   for (let i = 0; i < maxRetries; i++) {
+    const attempt = i + 1
     try {
       result = await adapter.invoke(prompt)
       result = removeRedactedThinkTags(result)
@@ -49,11 +67,29 @@ export async function invokeWithCleaning(
       if (result) {
         return result
       }
-    } catch {
+      console.warn("[LLM] invoke returned empty output after cleaning", {
+        attempt,
+        maxRetries,
+        promptLength: prompt.length,
+        ...urlLog,
+      })
+    } catch (err) {
+      console.error("[LLM] invoke threw", {
+        attempt,
+        maxRetries,
+        promptLength: prompt.length,
+        error: serializeError(err),
+        ...urlLog,
+      })
       if (i === maxRetries - 1) {
         throw new Error("LLM invoke failed after retries")
       }
     }
   }
+  console.error("[LLM] invoke failed: empty response after all retries", {
+    maxRetries,
+    promptLength: prompt.length,
+    ...urlLog,
+  })
   throw new Error("LLM invoke failed after retries")
 }

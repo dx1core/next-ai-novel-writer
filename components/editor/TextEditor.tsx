@@ -7,16 +7,17 @@ import { cn } from "@/lib/utils"
 type TextEditorProps = {
   initialValue: string
   onSave: (value: string) => void | Promise<void>
-  label?: string
   className?: string
+  /** 追加到 textarea，例如与外层 flex 联用：`min-h-0 flex-1` */
+  textareaClassName?: string
   saveLabel?: string
 }
 
 export function TextEditor({
   initialValue,
   onSave,
-  label,
   className,
+  textareaClassName,
   saveLabel = "保存",
 }: TextEditorProps) {
   const [value, setValue] = useState(initialValue)
@@ -39,20 +40,18 @@ export function TextEditor({
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      {label ? (
-        <label className="text-muted-foreground text-sm" htmlFor="text-editor">
-          {label}
-        </label>
-      ) : null}
       <textarea
-        className="min-h-64 w-full rounded-md border border-input bg-background p-3 text-sm ring-offset-background"
+        className={cn(
+          "min-h-64 w-full rounded-md border border-input bg-background p-3 text-sm ring-offset-background",
+          textareaClassName
+        )}
         id="text-editor"
         onChange={(e) => {
           setValue(e.target.value)
         }}
         value={value}
       />
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <Button
           disabled={status === "saving"}
           onClick={handleSave}

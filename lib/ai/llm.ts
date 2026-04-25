@@ -5,6 +5,8 @@ import { checkBaseUrl } from "./base-url"
 
 export type LlmAdapter = {
   invoke: (prompt: string) => Promise<string>
+  /** 用于日志的调用地址（不含密钥、不含 prompt） */
+  requestUrl?: string
 }
 
 function openAiLikeClient(config: LlmProfileConfig) {
@@ -36,7 +38,9 @@ function chatCompletionContent(
 
 function createOpenAiLikeAdapter(config: LlmProfileConfig): LlmAdapter {
   const client = openAiLikeClient(config)
+  const base = checkBaseUrl(config.baseUrl).replace(/\/$/, "")
   return {
+    requestUrl: `${base}/chat/completions`,
     async invoke(prompt: string) {
       const content = await chatCompletionContent(
         client,
@@ -70,6 +74,7 @@ function createAzureOpenAiAdapter(config: LlmProfileConfig): LlmAdapter {
     deployment: m[2],
   })
   return {
+    requestUrl: config.baseUrl.trim(),
     async invoke(prompt: string) {
       const r = await client.chat.completions.create({
         model: m[2],
@@ -85,7 +90,9 @@ function createAzureOpenAiAdapter(config: LlmProfileConfig): LlmAdapter {
 function createGeminiAdapter(config: LlmProfileConfig): LlmAdapter {
   const genAI = new GoogleGenerativeAI(config.apiKey)
   const model = genAI.getGenerativeModel({ model: config.modelName })
+  const requestUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.modelName}:generateContent`
   return {
+    requestUrl,
     async invoke(prompt: string) {
       const result = await model.generateContent(prompt)
       return result.response.text() ?? ""
@@ -99,6 +106,7 @@ function createGeminiAdapter(config: LlmProfileConfig): LlmAdapter {
 function createAzureAiInferenceAdapter(config: LlmProfileConfig): LlmAdapter {
   const u = config.baseUrl.trim()
   return {
+    requestUrl: u,
     async invoke(prompt: string) {
       const res = await fetch(u, {
         method: "POST",
@@ -117,6 +125,16 @@ function createAzureAiInferenceAdapter(config: LlmProfileConfig): LlmAdapter {
         signal: AbortSignal.timeout((config.timeout ?? 600) * 1000),
       })
       if (!res.ok) {
+        const bodyPreview = await res
+          .text()
+          .then((t) => t.slice(0, 800))
+          .catch(() => "")
+        console.error("[LLM] Azure AI Inference request failed", {
+          url: u,
+          status: res.status,
+          statusText: res.statusText,
+          bodyPreview: bodyPreview || undefined,
+        })
         return ""
       }
       const data = (await res.json()) as {

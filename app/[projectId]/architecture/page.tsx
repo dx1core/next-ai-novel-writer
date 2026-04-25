@@ -12,9 +12,11 @@ export default async function ArchitecturePage({ params }: Props) {
   }
   const c = p.architecture?.content ?? ""
   return (
-    <div>
-      <h1 className="font-bold text-2xl tracking-[-0.03em]">小说架构</h1>
-      <div className="mt-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <h1 className="shrink-0 font-bold text-2xl tracking-[-0.03em]">
+        小说架构
+      </h1>
+      <div className="flex min-h-0 flex-1 flex-col">
         <ArchitectureForm initialValue={c} projectId={projectId} />
       </div>
     </div>
