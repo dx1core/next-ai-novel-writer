@@ -104,6 +104,19 @@ export async function createEmbeddingProfile(data: {
   return prisma.embeddingProfile.create({ data })
 }
 
+/** Remove profile, clear project bindings; VectorEntry rows get embeddingProfileId null via FK. */
+export async function deleteEmbeddingProfileAndClearAssignments(
+  profileId: string
+) {
+  await prisma.$transaction(async (tx) => {
+    await tx.projectSettings.updateMany({
+      where: { embeddingProfileId: profileId },
+      data: { embeddingProfileId: null },
+    })
+    await tx.embeddingProfile.delete({ where: { id: profileId } })
+  })
+}
+
 export async function updateLlmProfile(
   id: string,
   data: Partial<{
@@ -118,6 +131,39 @@ export async function updateLlmProfile(
   }>
 ) {
   return prisma.llmProfile.update({ where: { id }, data })
+}
+
+/** Remove profile and clear it from every project's model assignments. */
+export async function deleteLlmProfileAndClearAssignments(profileId: string) {
+  await prisma.$transaction(async (tx) => {
+    const rows = await tx.projectSettings.findMany({
+      where: {
+        OR: [
+          { architectureLlmId: profileId },
+          { blueprintLlmId: profileId },
+          { draftLlmId: profileId },
+          { finalizeLlmId: profileId },
+          { consistencyLlmId: profileId },
+        ],
+      },
+    })
+    for (const s of rows) {
+      await tx.projectSettings.update({
+        where: { id: s.id },
+        data: {
+          architectureLlmId:
+            s.architectureLlmId === profileId ? null : s.architectureLlmId,
+          blueprintLlmId:
+            s.blueprintLlmId === profileId ? null : s.blueprintLlmId,
+          draftLlmId: s.draftLlmId === profileId ? null : s.draftLlmId,
+          finalizeLlmId: s.finalizeLlmId === profileId ? null : s.finalizeLlmId,
+          consistencyLlmId:
+            s.consistencyLlmId === profileId ? null : s.consistencyLlmId,
+        },
+      })
+    }
+    await tx.llmProfile.delete({ where: { id: profileId } })
+  })
 }
 
 export async function updateEmbeddingProfile(

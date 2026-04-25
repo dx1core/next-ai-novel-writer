@@ -24,12 +24,18 @@ export default async function SettingsPage({ params }: Props) {
             id: x.id,
             name: x.name,
             modelName: x.modelName,
+            interfaceFormat: x.interfaceFormat,
+            baseUrl: x.baseUrl,
+            apiKey: x.apiKey,
+            retrievalK: x.retrievalK,
           }))}
           llmProfiles={llmProfiles.map((x) => ({
             id: x.id,
             name: x.name,
             modelName: x.modelName,
             interfaceFormat: x.interfaceFormat,
+            baseUrl: x.baseUrl,
+            apiKey: x.apiKey,
           }))}
           project={{
             id: p.id,

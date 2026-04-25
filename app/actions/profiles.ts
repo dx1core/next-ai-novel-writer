@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db"
 import {
   createEmbeddingProfile,
   createLlmProfile,
+  deleteEmbeddingProfileAndClearAssignments,
+  deleteLlmProfileAndClearAssignments,
   listEmbeddingProfiles,
   listLlmProfiles,
   updateEmbeddingProfile,
@@ -41,14 +43,36 @@ export async function updateLlmProfileAction(
   id: string,
   data: Parameters<typeof updateLlmProfile>[1]
 ) {
-  return updateLlmProfile(id, data)
+  const row = await updateLlmProfile(id, data)
+  revalidatePath("/")
+  return row
+}
+
+export async function deleteLlmProfileAction(
+  profileId: string,
+  currentProjectId: string
+) {
+  await deleteLlmProfileAndClearAssignments(profileId)
+  revalidatePath("/")
+  revalidatePath(`/${currentProjectId}/settings`)
 }
 
 export async function updateEmbeddingProfileAction(
   id: string,
   data: Parameters<typeof updateEmbeddingProfile>[1]
 ) {
-  return updateEmbeddingProfile(id, data)
+  const row = await updateEmbeddingProfile(id, data)
+  revalidatePath("/")
+  return row
+}
+
+export async function deleteEmbeddingProfileAction(
+  profileId: string,
+  currentProjectId: string
+) {
+  await deleteEmbeddingProfileAndClearAssignments(profileId)
+  revalidatePath("/")
+  revalidatePath(`/${currentProjectId}/settings`)
 }
 
 export async function updateProjectModelAssignmentsAction(
