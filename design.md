@@ -29,7 +29,7 @@
 
 - **对话/补全**：通过 HTTP 调用 OpenAI 兼容接口或其它厂商；可在服务端用官方 SDK 或 **Vercel AI SDK** 等薄封装，抽象为 `lib/ai/llm.ts` 类「适配器工厂」，与参考项目的 `interface_format → 适配器」一致。
 - **Embedding**：独立配置；与补全可不同厂商。
-- **向量检索**：参考项目使用 **Chroma + LangChain（Python）**。在 Node 侧可选用：Chroma HTTP 客户端、`@langchain/community`（若引入且用户同意）、或 **云向量库**；或 MVP 阶段「仅全文 + 摘要」降级。设计层保留 **「章块向量 + metadata（项目 ID、章节号、版本）」** 概念即可。
+- **向量检索**：本仓库实现为 **PostgreSQL + pgvector**（`VectorEntry` 表，余弦距离索引；切块写入与检索在 `lib/rag`）。设计层保留 **「章块向量 + metadata（项目 ID、来源 chapter|knowledge）」** 概念即可。
 
 ---
 
@@ -126,7 +126,7 @@ config/                 # 默认配置、环境变量校验
 | `PlotArcs` | 可选文本。 |
 | `GenerationJob` | 可选：异步任务状态、错误信息、进度。 |
 
-**向量数据**：若仍用 Chroma 等外部存储，Prisma 中仅存 `vectorCollectionId` 或项目级 collection 命名规则；若将来在 **PostgreSQL** 内用扩展存向量（如 `pgvector`），则另表与 **Embedding 模型版本** 绑定，换模型时清空或重建。
+**向量数据**：使用 **pgvector** 存于 `VectorEntry`（`projectId`、`embeddingProfileId`、`source`、`content`、`vector(1536)`）。更换 Embedding 模型或维度前应 **按项目清空向量** 并重建；当前实现固定 **1536** 维以匹配常见 embedding 模型。
 
 ---
 
@@ -187,8 +187,8 @@ config/                 # 默认配置、环境变量校验
 
 ## 9. 参考与差异说明
 
-- **参考能力来源**：开源项目 **AI_NovelGenerator**（Python + CustomTkinter + 文件态 + Chroma）。  
-- **本仓库差异**：**TypeScript + Next.js + Prisma/PostgreSQL** 为权威状态；向量与文件导出为附属能力。  
+- **参考项目**：开源项目 [**AI_NovelGenerator**](https://github.com/YILING0013/AI_NovelGenerator)（Python + CustomTkinter + 文件态 + Chroma）。
+- **本仓库差异**：**TypeScript + Next.js + Prisma/PostgreSQL** 为权威状态；向量存于 **pgvector**；文件导出为附属能力。  
 - 参考项目中 README 曾描述 `outline_X.txt`、`plot_arcs` 自动更新等，与代码未必完全一致；本设计以 **能力意图** 为准，落地时以本仓库实现与测试为准。
 
 ---

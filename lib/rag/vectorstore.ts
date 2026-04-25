@@ -1,17 +1,12 @@
-import { randomBytes } from "node:crypto"
-import { ChromaClient } from "chromadb"
 import type { EmbeddingAdapter } from "@/lib/ai/embedding"
-
-function chromaClient() {
-  return new ChromaClient({
-    host: process.env.CHROMA_HOST ?? "localhost",
-    port: Number(process.env.CHROMA_PORT ?? 8000),
-  })
-}
-
-function collectionName(projectId: string) {
-  return `novel_${projectId}`.replace(/[^a-zA-Z0-9_-]/g, "_")
-}
+import { getProjectSettings } from "@/lib/db/profiles"
+import {
+  countVectorEntriesForProject,
+  deleteVectorEntriesForProject,
+  findNearestVectorEntries,
+  insertVectorEntries,
+  type VectorEntrySource,
+} from "@/lib/db/vector-entries"
 
 /**
  * Split like Python `split_text_for_vectorstore` (nltk sentences + max length 500).
@@ -57,42 +52,12 @@ function splitByLength(text: string, maxLength: number) {
   return segs.filter(Boolean)
 }
 
-export async function getOrCreateProjectCollection(
-  projectId: string
-): ReturnType<ChromaClient["getOrCreateCollection"]> {
-  const client = chromaClient()
-  return client.getOrCreateCollection({
-    name: collectionName(projectId),
-    metadata: { projectId },
-  })
-}
-
 export async function clearVectorStoreForProject(projectId: string) {
   try {
-    const client = chromaClient()
-    await client.deleteCollection({ name: collectionName(projectId) })
+    await deleteVectorEntriesForProject(projectId)
   } catch {
-    /* ignore if missing */
+    /* ignore if DB unavailable */
   }
-}
-
-export async function addChapterSegmentsToVectorStore(
-  embedding: EmbeddingAdapter,
-  projectId: string,
-  chapterText: string
-) {
-  const segs = splitTextForVectorStore(chapterText)
-  if (segs.length === 0) {
-    return
-  }
-  const vecs = await callWithRetryEmb(() => embedding.embedDocuments(segs), [])
-  if (vecs.length !== segs.length) {
-    return
-  }
-  const coll = await getOrCreateProjectCollection(projectId)
-  const ids = segs.map(() => `c_${randomBytes(8).toString("hex")}`)
-  const metadatas = segs.map(() => ({ source: "chapter" as const }))
-  await coll.add({ ids, embeddings: vecs, documents: segs, metadatas })
 }
 
 async function callWithRetryEmb<T>(
@@ -112,6 +77,46 @@ async function callWithRetryEmb<T>(
 }
 
 /**
+ * Embed and persist text chunks for RAG (pgvector). Skips when project has no Embedding 档案.
+ */
+export async function addDocumentChunksToVectorStore(
+  embedding: EmbeddingAdapter,
+  projectId: string,
+  source: VectorEntrySource,
+  texts: string[]
+) {
+  if (texts.length === 0) {
+    return
+  }
+  const settings = await getProjectSettings(projectId)
+  const embeddingProfileId = settings?.embeddingProfileId ?? null
+  if (!embeddingProfileId) {
+    return
+  }
+  const vecs = await callWithRetryEmb(() => embedding.embedDocuments(texts), [])
+  if (vecs.length !== texts.length) {
+    return
+  }
+  const entries = texts.map((content, i) => ({
+    projectId,
+    embeddingProfileId,
+    source,
+    content,
+    embedding: vecs[i] ?? [],
+  }))
+  await insertVectorEntries(entries)
+}
+
+export async function addChapterSegmentsToVectorStore(
+  embedding: EmbeddingAdapter,
+  projectId: string,
+  chapterText: string
+) {
+  const segs = splitTextForVectorStore(chapterText)
+  await addDocumentChunksToVectorStore(embedding, projectId, "chapter", segs)
+}
+
+/**
  * @returns up to 2000 chars
  */
 export async function getRelevantContextFromVectorStore(
@@ -121,8 +126,12 @@ export async function getRelevantContextFromVectorStore(
   k: number
 ) {
   try {
-    const coll = await getOrCreateProjectCollection(projectId)
-    const c = await coll.count()
+    const settings = await getProjectSettings(projectId)
+    const embeddingProfileId = settings?.embeddingProfileId ?? null
+    if (!embeddingProfileId) {
+      return ""
+    }
+    const c = await countVectorEntriesForProject(projectId, embeddingProfileId)
     const actualK = Math.min(k, Math.max(1, c))
     if (c === 0) {
       return ""
@@ -131,11 +140,12 @@ export async function getRelevantContextFromVectorStore(
     if (qe.length === 0) {
       return ""
     }
-    const res = await coll.query({
-      queryEmbeddings: [qe],
-      nResults: actualK,
-    })
-    const docs = res.documents?.[0] ?? []
+    const docs = await findNearestVectorEntries(
+      projectId,
+      embeddingProfileId,
+      qe,
+      actualK
+    )
     const combined = docs.filter(Boolean).join("\n")
     return combined.length > 2000 ? combined.slice(0, 2000) : combined
   } catch {

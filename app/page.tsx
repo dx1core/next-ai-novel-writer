@@ -12,9 +12,9 @@ export default async function Home() {
         <p className="notion-prose-muted mt-3 max-w-2xl text-pretty text-base">
           管理项目。每个项目有独立设定、章节目录、章节与 LLM/Embedding
           配置。请先在各项目的「设置」中创建并绑定 LLM 与 Embedding
-          档案。向量检索需本机或 Docker 运行 Chroma，见{" "}
-          <code className="text-xs">.env</code> 中的
-          <code className="text-xs">CHROMA_HOST/CHROMA_PORT</code>。
+          档案。向量检索使用同一 PostgreSQL 中的{" "}
+          <code className="text-xs">pgvector</code>
+          （迁移会创建扩展与向量表；Embedding 向量维度固定为 1536）。
         </p>
       </header>
       <section className="mt-10">

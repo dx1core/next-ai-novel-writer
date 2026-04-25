@@ -17,7 +17,7 @@
 | 框架   | Next.js 16（App Router）、React 19 |
 | 语言   | TypeScript 5（`strict`） |
 | 样式   | Tailwind CSS 4；组件上优先 **shadcn/ui**，其次 **Base UI**；图标用 **Lucide**（具名 import） |
-| 数据库 | **PostgreSQL** + **Prisma 7**；运行时通过 `@prisma/adapter-pg`、`pg` 与 `lib/db.ts` 单例 |
+| 数据库 | **PostgreSQL** + **Prisma 7**；RAG 向量存 **pgvector**（`VectorEntry`，1536 维）；运行时通过 `@prisma/adapter-pg`、`pg` 与 `lib/db.ts` 单例 |
 | 包管理 | **pnpm** |
 
 以本仓库的 `package.json` 和 `prisma/schema.prisma` 为权威；代码风格与静态检查统一由 **Biome**（`biome.json`）负责。
